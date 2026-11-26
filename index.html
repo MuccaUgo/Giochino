@@ -1,0 +1,129 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1c4148"><title>Portolume · Il cortile</title><style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#183940;color:#263c3c;font-family:system-ui,-apple-system,sans-serif}body{min-height:100svh;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 15%,#416866,#1a393f 75%);padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}main{width:min(100%,1000px);background:#faf0d6;border:2px solid #18373b;border-radius:14px;overflow:hidden;box-shadow:0 12px 55px #102d3699}header,footer,.controls{display:flex;align-items:center;justify-content:space-between;gap:10px}header{min-height:56px;padding:8px 17px;border-bottom:2px solid #284748}h1,h2,.role{font-family:Georgia,serif}h1{font-size:clamp(24px,4vw,36px);letter-spacing:-.07em;margin:0}header small{color:#577069}button{font:inherit;cursor:pointer;touch-action:manipulation;color:inherit}.copy,#leave,#retry{background:#f9edcd;border:1px solid #94a08e;border-radius:6px;padding:8px 12px;font-weight:700;font-size:.85rem}button:focus-visible{outline:3px solid #ce8130;outline-offset:3px}button:disabled{cursor:default}.scene{position:relative;isolation:isolate;background:#94c1ae;overflow:hidden}#map{display:block;width:100%;aspect-ratio:260/184;max-height:68svh;object-fit:fill;image-rendering:pixelated;touch-action:none}.gate{position:absolute;inset:0;background:#1538396e;display:grid;place-items:center;padding:12px}.panel{background:#fff3d9;border:2px solid #314a47;border-radius:10px;box-shadow:0 5px 0 #233f4355;padding:clamp(10px,2.5vw,23px);width:min(425px,100%);text-align:center}.eyebrow{color:#906436;font-weight:800;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase}h2{font-size:clamp(20px,3.5vw,32px);letter-spacing:-.04em;margin:3px 0 12px}.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{display:grid;justify-items:center;gap:3px;background:#f4d8be;border:2px solid #b99876;border-radius:7px;padding:7px 4px}.choice:nth-child(2){background:#d7e5d6;border-color:#8ca69e}.choice:hover:enabled{border-color:#276f66;transform:translateY(-1px)}.choice:disabled{filter:saturate(.4);opacity:.65}.choice canvas{width:clamp(46px,10vw,84px);height:auto;image-rendering:pixelated}.role{font-size:clamp(16px,2.6vw,22px);font-weight:700}.avail{font-size:.78rem;font-weight:650}.note{min-height:1.2em;margin:9px 0 0;font-size:.78rem;color:#52625a}.hidden,[hidden]{display:none!important}footer{min-height:45px;padding:8px 14px;gap:8px;color:#fcf0cf;background:#24464a;font-size:.86rem}#leave{color:#273e40}#linkbox{width:100%;padding:7px 12px}#linkbox input{width:100%;font:inherit;padding:5px}.status{display:flex;gap:6px;align-items:center}.dot{width:8px;height:8px;border-radius:50%;background:#cca560}.online .dot{background:#9bd2a1}
+@media(max-width:540px){header{padding:7px 10px;min-height:48px}.scene{min-height:385px;display:grid;align-items:center}#map{width:100%;max-height:none;aspect-ratio:260/230}.panel{padding:14px 10px}.choice canvas{width:66px}footer{font-size:.75rem}.copy{font-size:.75rem;padding:7px}.note{font-size:.73rem}}
+@media(max-height:490px) and (orientation:landscape){body{padding:0}main{max-width:640px}header{min-height:33px;padding:2px 10px}h1{font-size:23px}#map{max-height:70svh}.panel{padding:5px 10px;width:295px}.choice{gap:0;padding:2px}.choice canvas{width:40px}h2{margin:0 0 4px;font-size:18px}.note{margin:4px}.role{font-size:16px}footer{min-height:28px;padding:3px 10px}}
+</style></head><body><main><header><h1>Portolume</h1><button class="copy" id="share">Copia link partita</button></header><div id="linkbox" hidden><input readonly aria-label="Link della partita"></div><section class="scene"><canvas id="map" width="260" height="184" aria-label="Cortile del castello. Tocca il terreno per muoverti."></canvas><div class="gate" id="gate"><div class="panel"><span class="eyebrow">Cortile del castello</span><h2>Scegli il tuo personaggio</h2><div class="roles"><button class="choice" data-role="principessa" disabled><canvas width="40" height="39"></canvas><span class="role">Principessa</span><span class="avail">Verifica…</span></button><button class="choice" data-role="cavaliere" disabled><canvas width="40" height="39"></canvas><span class="role">Cavaliere</span><span class="avail">Verifica…</span></button></div><p class="note" id="msg" aria-live="polite">Collegamento alla partita…</p><button id="retry" hidden>Riprova</button></div></div></section><footer><span class="status"><i class="dot"></i><span id="status" role="status">Connessione…</span></span><span id="hint" hidden>Tocca il terreno per muoverti</span><button id="leave" hidden>Esci</button></footer></main><script>const service={"url":"https://tijhdfjovmmqwbsbqirn.supabase.co","key":"sb_publishable_0jnPuLmxYP-lUQGOZqYPpA_vg6cHtRS"};
+</script><script>function painter(c){
+ const box=(x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h);};
+ const oval=(x,y,rx,ry,color)=>{for(let d=-ry;d<=ry;d++){const n=Math.round(rx*Math.sqrt(Math.max(0,1-d*d/(ry+.35)**2)));box(x-n,y+d,2*n+1,1,color);}};
+ return {box,oval};
+}
+function actor(c,x,y,role,step=0,dir=1){
+ c.save();c.translate(Math.round(x),Math.round(y));const {box,oval}=painter(c);oval(0,0,8,2,'#677d72');
+ if(dir<0)c.scale(-1,1);let b=step?Math.round(Math.sin(step)*1.1):0;
+ box(-5,-3,4,3+b,'#323d4a');box(2,-3,4,3-b,'#323d4a');c.translate(0,Math.abs(b)?-1:0);
+ if(role==='principessa'){
+  oval(0,-20,7,8,'#643e43');box(-7,-19,3,13,'#a85b43');box(4,-19,4,13,'#a85b43');
+  box(-4,-23,9,8,'#f4b485');box(-3,-21,8,4,'#ffd4a5');box(2,-21,1,2,'#393443');box(-5,-25,9,3,'#ad6345');
+  box(-5,-30,2,5,'#e2a536');box(-1,-32,2,6,'#ffda60');box(4,-30,2,5,'#ecb441');box(-5,-27,11,3,'#ffcd56');box(0,-26,2,2,'#65baa3');
+  box(-5,-16,10,6,'#943f64');box(-4,-15,8,5,'#ed8494');box(-6,-15,3,4,'#ffd4a7');box(4,-15,3,4,'#ffd4a7');box(-4,-11,9,2,'#f3c563');
+  for(let n=0;n<7;n++){const w=5+Math.floor(n/2);box(-w,-9+n,w*2+1,1,'#943e64');box(-w+1,-9+n,w+4,1,'#e27b91');box(-w+2,-9+n,2,1,'#ffb2a9');}
+  box(-8,-3,17,2,'#eed3a4');
+ }else{
+  box(-5,-17,11,14,'#9c5046');box(-7,-12,3,9,'#d66750');
+  box(-5,-16,11,10,'#354b5b');box(-4,-15,9,7,'#769aa8');box(-3,-15,6,2,'#d0e3d5');box(-6,-16,4,4,'#b5cccb');box(3,-16,4,4,'#9ebdc1');box(-4,-8,9,2,'#be935b');
+  oval(0,-22,7,6,'#354956');box(-5,-26,9,6,'#a3bfc3');box(-4,-26,5,2,'#e1edda');box(-4,-22,11,4,'#454d58');box(0,-21,6,1,'#e3b987');box(3,-20,1,1,'#393743');box(-6,-19,13,2,'#8faeb3');
+  box(-2,-29,5,3,'#82434c');box(0,-32,6,4,'#b74950');box(4,-33,6,3,'#ec795d');box(8,-31,3,3,'#bc5052');
+  box(-9,-14,7,8,'#3b545e');box(-8,-13,5,7,'#e2b75f');box(-7,-12,3,5,'#477d82');box(-7,-6,3,2,'#8f774a');
+ }c.restore();
+}
+function courtyard(c){
+ const {box,oval}=painter(c),rand=(i)=>((Math.imul(i+53,2654435761)>>>0)%1000)/1000;
+ box(0,0,260,184,'#9dd4cd');box(0,29,260,22,'#80b3aa');
+ for(let i=0;i<32;i++){let x=i*9,y=23+Math.floor(rand(i)*12);oval(x,y+14,12,13,'#75a79a');}
+ box(0,50,260,134,'#96b87c');box(0,79,260,8,'#719875');
+ for(let i=0;i<550;i++){let x=Math.floor(rand(i*7)*260),y=77+Math.floor(rand(i*13+8)*105);box(x,y,2,1,i%4?'#89ab75':'#b4c68a');}
+ box(0,44,260,32,'#8b8f84');box(0,42,260,29,'#cbbfa2');
+ for(let i=0;i<26;i++){box(i*11,36,7,8,'#8d948a');box(i*11+1,36,6,7,'#e1d3ae');}
+ for(let i=0;i<75;i++){const y=45+Math.floor(i/21)*7,x=(i%21)*13+(Math.floor(i/21)%2)*5;box(x,y,11,1,'#e1d3b2');box(x+10,y+1,1,5,'#b7ae96');}
+ const tower=(x)=>{box(x-10,28,20,45,'#9ba097');box(x-8,28,15,43,'#deceb1');box(x-1,37,4,9,'#536c71');box(x-11,25,22,4,'#5a7777');for(let i=0;i<18;i++){const w=Math.ceil((18-i)*.65);box(x-w,25-i,2*w+1,1,'#487d83');if(w>3)box(x-w+1,25-i,Math.ceil(w*.7),1,'#63a19b');}box(x,1,1,9,'#6b6957');box(x+1,1,7,3,'#d77060');};
+ tower(24);tower(236);tower(104);tower(156);
+ box(113,38,35,39,'#b2a790');box(116,38,29,39,'#d5c3a2');oval(130,57,11,11,'#64716a');box(119,56,23,20,'#64716a');box(121,55,19,20,'#80775e');
+ for(let i=0;i<5;i++)box(122+i*4,53,1,22,'#a69673');
+ for(let i=0;i<3;i++)box(112-i*2,74+i*3,37+4*i,3,i%2?'#b7af92':'#ead9b5');
+ const path='#decb9f';box(107,83,47,101,path);box(0,120,260,26,path);oval(130,130,75,31,path);
+ for(let i=0;i<300;i++){const x=Math.floor(rand(i*3)*260),y=85+Math.floor(rand(i*11)*99);if((x>106&&x<154)||(y>120&&y<146)||((x-130)/73)**2+((y-130)/30)**2<1)box(x,y,3,1,i%2?'#cdbb94':'#eddeb6');}
+ const tree=(x,y)=>{oval(x+2,y,9,3,'#799777');box(x-2,y-10,4,10,'#806954');oval(x,y-15,9,13,'#477d70');oval(x-2,y-17,7,11,'#6ca079');oval(x-3,y-22,4,5,'#8bb581');};
+ for(const [x,y] of [[10,83],[47,82],[82,84],[177,84],[209,82],[250,84],[8,181],[248,182]])tree(x,y);
+ for(const [xx,yy] of [[34,103],[210,103],[33,160],[211,160]]){oval(xx,yy,14,4,'#648c70');for(let i=0;i<12;i++){const x=xx-11+Math.round(rand(i*17)*22),y=yy-5+Math.round(rand(i*5)*5);box(x,y,1,3,'#4d8267');box(x-1,y,3,2,i%3?'#e88776':'#f4ce71');}}
+}
+</script><script>(()=>{
+ const $=id=>document.getElementById(id),map=$('map'),c=map.getContext('2d'),ground=document.createElement('canvas');
+ ground.width=260;ground.height=184;courtyard(ground.getContext('2d'));
+ const buttons=[...document.querySelectorAll('.choice')],names={principessa:'Principessa',cavaliere:'Cavaliere'};
+ const defaultRoom='7bf8ee50-ccd7-4763-8694-58be9c87fb9c';
+ const arg=new URLSearchParams(location.hash.slice(1)).get('partita');
+ const room=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(arg||'')?arg:defaultRoom;
+ const token=crypto.randomUUID(),endpoint=service.url+'/rest/v1/rpc/portolume_visit';
+ let mine=null,seats={},available=false,pending=false,chain=Promise.resolve(),tasks=0,point=null,me=null,next=0,lastSync=0;
+ const displayed={},keys=new Set();
+ function update(message=''){
+   $('gate').hidden=!!mine;$('leave').hidden=!mine;$('hint').hidden=!mine;$('retry').hidden=available||pending;
+   $('status').textContent=available?(Object.keys(seats).length+'/2 online'+(mine?' · '+names[mine]:'')):'Connessione in corso…';
+   $('status').parentElement.classList.toggle('online',available);
+   for(const b of buttons){const role=b.dataset.role,occupied=!!seats[role];b.disabled=!available||pending||occupied;b.querySelector('.avail').textContent=occupied?'Già scelto':available?'Disponibile':'Verifica…';}
+   $('msg').textContent=message||(available?(Object.keys(seats).length===2?'Entrambi i ruoli sono occupati.':'Scegli un ruolo per entrare nel cortile.'):'Verifico i posti sul server…');
+ }
+ function call(op,wanted=null){
+   tasks++;
+   const job=chain.then(async()=>{
+     const data={r:room,k:token,op,wanted,px:op==='pulse'&&me?me.x:null,py:op==='pulse'&&me?me.y:null};
+     const abort=new AbortController(),tm=setTimeout(()=>abort.abort(),6000);
+     try{
+       const res=await fetch(endpoint,{method:'POST',headers:{apikey:service.key,'Content-Type':'application/json'},body:JSON.stringify(data),signal:abort.signal,cache:'no-store'});
+       if(!res.ok)throw Error('Servizio non raggiungibile.');
+       const ans=await res.json();if(!ans||!ans.seats||typeof ans.ok!=='boolean')throw Error('Risposta non valida.');
+       const old=mine;mine=ans.mine;seats=ans.seats;available=true;lastSync=performance.now();
+       if(mine!==old){point=null;keys.clear();me=mine?{...seats[mine],dir:mine==='principessa'?1:-1,phase:0}:null;}
+       update(!ans.ok?'Questo ruolo è appena stato scelto. Scegli quello libero.':old&&!mine&&op!=='leave'?'Il posto è scaduto. Scegli di nuovo il personaggio.':'');
+     }catch{available=false;update('Connessione assente. Controlla internet e riprova.');}
+     finally{clearTimeout(tm);tasks--;}
+   });chain=job.catch(()=>{});return job;
+ }
+ for(const b of buttons){actor(b.querySelector('canvas').getContext('2d'),19,35,b.dataset.role);b.onclick=async()=>{
+   if(pending||mine||!available)return;pending=true;update('Prenotazione del posto…');await call('claim',b.dataset.role);pending=false;update();
+ };}
+ $('leave').onclick=async()=>{if(pending)return;pending=true;point=null;await call('leave');pending=false;update();};
+ $('retry').onclick=()=>call(mine?'pulse':'watch');
+ $('share').onclick=async()=>{
+   let url;if(location.protocol==='file:'){url='Apri lo stesso file Portolume.html sul secondo dispositivo.';}else{const u=new URL(location.href);u.hash='partita='+room;url=u.href;}
+   try{if(location.protocol==='file:')throw Error();await navigator.clipboard.writeText(url);$('share').textContent='Link copiato';setTimeout(()=>$('share').textContent='Copia link partita',1600);}
+   catch{$('linkbox').hidden=false;const el=$('linkbox').querySelector('input');el.value=url;el.select();}
+ };
+ const limit=(n,l,h)=>Math.max(l,Math.min(h,n));
+ map.onpointerdown=e=>{if(!mine||!available)return;e.preventDefault();const rect=map.getBoundingClientRect(),x=(e.clientX-rect.left)*260/rect.width,y=(e.clientY-rect.top)*184/rect.height;if(y<82)return;point={x:limit(x,12,248),y:limit(y,86,174)};};
+ const moves={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+ window.addEventListener('keydown',e=>{if(mine&&moves[e.key]){e.preventDefault();keys.add(e.key);point=null;}});
+ window.addEventListener('keyup',e=>keys.delete(e.key));
+ window.addEventListener('blur',()=>{keys.clear();point=null;});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!tasks)call(mine?'pulse':'watch');});
+ window.addEventListener('pagehide',()=>{if(mine)fetch(endpoint,{method:'POST',headers:{apikey:service.key,'Content-Type':'application/json'},body:JSON.stringify({r:room,k:token,op:'leave'}),keepalive:true}).catch(()=>{});});
+ function tick(){if(!pending&&!tasks&&performance.now()>=next){next=performance.now()+(mine?(point||keys.size?135:380):1150);call(mine?'pulse':'watch');}}
+ setInterval(tick,80);tick();
+ let then=performance.now();
+ function render(now){
+   const dt=Math.min(.12,(now-then)/1000);then=now;
+   if(mine&&me&&available){
+     let dx=0,dy=0,dist=Infinity;
+     if(point){dx=point.x-me.x;dy=point.y-me.y;dist=Math.hypot(dx,dy);}
+     else for(const k of keys){dx+=moves[k][0];dy+=moves[k][1];}
+     const len=Math.hypot(dx,dy);
+     if(len>.01){const n=Math.min(48*dt,dist);me.x=limit(me.x+dx/len*n,12,248);me.y=limit(me.y+dy/len*n,86,174);if(Math.abs(dx)>.1)me.dir=dx>0?1:-1;me.phase+=dt*13;if(dist<=n+.1)point=null;}
+     else{me.phase=0;point=null;}
+   }
+   c.drawImage(ground,0,0);
+   if(point&&mine){const {box}=painter(c);box(Math.round(point.x)-3,Math.round(point.y),7,1,'#fff7d2');box(Math.round(point.x),Math.round(point.y)-3,1,7,'#fff7d2');}
+   const figures=[];
+   for(const [role,pos] of Object.entries(seats)){
+     if(role===mine&&me){figures.push({role,...me});continue;}
+     let d=displayed[role];if(!d)d=displayed[role]={...pos,dir:1,phase:0};
+     const dx=pos.x-d.x,dy=pos.y-d.y,k=1-Math.exp(-dt*12);
+     if(Math.abs(dx)>.25)d.dir=dx>0?1:-1;d.phase=Math.hypot(dx,dy)>.3?d.phase+dt*13:0;d.x+=dx*k;d.y+=dy*k;figures.push({role,...d});
+   }
+   for(const r of Object.keys(displayed))if(!seats[r])delete displayed[r];
+   for(const f of figures.sort((a,b)=>a.y-b.y)){actor(c,f.x,f.y,f.role,f.phase,f.dir);if(f.role===mine){const {box}=painter(c);box(Math.round(f.x)-2,Math.round(f.y)-37,5,1,'#fff2a6');box(Math.round(f.x)-1,Math.round(f.y)-36,3,1,'#fff2a6');}}
+   requestAnimationFrame(render);
+ }
+ requestAnimationFrame(render);
+})();
+</script></body></html>
